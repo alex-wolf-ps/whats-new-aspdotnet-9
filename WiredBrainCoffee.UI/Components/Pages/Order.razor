@@ -1,0 +1,85 @@
+﻿@page "/order"
+
+<div class="page-wrapper">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h2>Our Coffee and Food</h2>
+                <p>Coffee, comfort food, great prices - we have it all.</p>
+                <hr />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-8">
+                <div>
+                    <input class="form-control" style="max-width: 250px; display: inline-block;" placeholder="Search..." @bind="SearchTerm" />
+                    <button @onclick="FilterMenu" class="btn btn-info">Search</button>
+                    <hr />
+                    @if(FilteredMenu.Count() > 0 )
+                    {
+                        <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
+                            @foreach (var item in FilteredMenu)
+                            {
+                                <MenuListItem MenuItem="item" OnClickCallback="(e => AddToOrder(item))" />
+                            }
+                        </div>
+                    }
+                </div>
+                @if (FilteredMenu.Count() == 0)
+                {
+                    <ul class="nav nav-tabs" id="myTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#coffee" type="button" role="tab" aria-controls="home" aria-selected="true">Cofee</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#food" type="button" role="tab" aria-controls="profile" aria-selected="false">Food</button>
+                        </li>
+                    </ul>
+                    <div class="tab-content" id="myTabContent">
+                        <div class="tab-pane fade show active" id="coffee" role="tabpanel" aria-labelledby="home-tab">
+                            <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
+
+                                @foreach (var item in MenuItems.Where(x => x.Category == "Coffee"))
+                                {
+                                    <MenuListItem MenuItem="item" OnClickCallback="(e => AddToOrder(item))" />
+                                }
+                                </div>
+                        </div>
+                        <div class="tab-pane fade" id="food" role="tabpanel" aria-labelledby="profile-tab">
+                            <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
+
+                            @foreach (var item in MenuItems.Where(x => x.Category == "Food"))
+                            {
+                                <MenuListItem MenuItem="item" OnClickCallback="(e => AddToOrder(item))" />
+                            }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+            <div class="col-md-4">
+                <div class="order-info">
+                    <h3>Order Summary:</h3>
+                    @foreach (var item in CurrentOrder)
+                    {
+                        <OrderListItem MenuItem="item" OnClickCallback="(e => RemoveFromOrder(item))" />
+                    }
+                    <br />
+                    <div class="place-order">
+                        <p class="sub-line"><span>Total: @((OrderTotal).ToString("C"))</span></p>
+                        <br />
+                        <div class="form-group">
+                            <label>Tip your barista: (optional)</label>
+                            <InputNumber type="range" min="0" max="25" step="5" @bind-value="Tip" class="form-range" />
+                            <p class="sub-line">@Tip% (@(((Tip / 100) * OrderTotal).ToString("C")))</p>
+                        </div>
+                        <br />
+                        <p class="sub-line"><span>Tax: @((SalesTax * OrderTotal).ToString("C"))</span></p>
+                        <p class="sub-line"><span>Final Total:</span><span>@((OrderTotal + (SalesTax * OrderTotal) + ((Tip / 100) * OrderTotal)).ToString("C"))</span></p>
+                        <button @onclick="PlaceOrder" class="float-end btn btn-primary">Place Order</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
