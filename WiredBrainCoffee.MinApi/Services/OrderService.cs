@@ -10,9 +10,9 @@ namespace WiredBrainCoffee.MinApi.Services
 {
     public class OrderService : IOrderService
     {
-        private HybridCache cache;
+        private IDistributedCache cache;
 
-        public OrderService(HybridCache cache)
+        public OrderService(IDistributedCache cache)
         {
             this.cache = cache;
         }
