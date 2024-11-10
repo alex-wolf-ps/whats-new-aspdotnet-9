@@ -8,12 +8,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IMenuService, MenuService>();
-
 builder.Services.AddDistributedMemoryCache();
-
 builder.Services.AddCors();
-
-builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
