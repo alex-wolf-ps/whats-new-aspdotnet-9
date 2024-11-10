@@ -10,47 +10,23 @@ namespace WiredBrainCoffee.MinApi.Services
 {
     public class OrderService : IOrderService
     {
-        IDistributedCache cache { get; }
+        private HybridCache cache;
 
-        public OrderService(IDistributedCache cache)
+        public OrderService(HybridCache cache)
         {
             this.cache = cache;
         }
 
         public async Task<List<Order>> GetOrders()
         {
-            var key = "orders";
-            var cachedOrders = await cache.GetAsync(key);
-
-            if (cachedOrders is null)
-            {
-                // Orders not cached - get them from the "database"
-                var orders = GenerateOrders();
-
-                // Serialize and cache the orders
-                var serializedOrders = JsonSerializer.Serialize(orders);
-                cachedOrders = Encoding.UTF8.GetBytes(serializedOrders);
-                await cache.SetAsync(key, cachedOrders, new DistributedCacheEntryOptions
-                {
-                    AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(10)
-                });
-
-                return orders;
-            }
-            else
-            {
-                // Orders found in cache - deserialize and return them
-                return JsonSerializer.Deserialize<List<Order>>(cachedOrders);
-            }
+            var key = "admin-orders";
+            return await cache.GetOrCreateAsync(key, async _ => await GenerateOrders());
         }
 
-        public Order GetOrderById(int id)
+        private async Task<List<Order>> GenerateOrders()
         {
-            return GenerateOrders().ToList().FirstOrDefault(x => x.Id == id);
-        }
-
-        private List<Order> GenerateOrders()
-        {
+            // In a real app, this method would async make a request to a database or API
+            
             string[] names = ["Bob", "Alex", "Joe", "Jane", "Sarah", "Josh", "Ann", "Laura"];
             string[] lastNames = ["Test", "Sample", "Doe", "Example", "Testing"];
             string[] promoCodes = ["WiredFall123", "WiredCoffee", "dotnet9rocks", "Coffee123", "CoffeePromo"];
@@ -79,6 +55,11 @@ namespace WiredBrainCoffee.MinApi.Services
             }
 
             return orders;
+        }
+
+        public async Task<Order> GetOrderById(int id)
+        {
+            return (await GenerateOrders()).FirstOrDefault(x => x.Id == id);
         }
     }
 }

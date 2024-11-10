@@ -1,48 +1,57 @@
+using Microsoft.Extensions.Caching.Hybrid;
 using WiredBrainCoffee.MinApi.Services;
 using WiredBrainCoffee.MinApi.Services.Interfaces;
-using WiredBrainCoffee.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+//builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IMenuService, MenuService>();
-builder.Services.AddDistributedMemoryCache();
+
+builder.Services.AddHybridCache(options =>
+{
+    options.DefaultEntryOptions = new HybridCacheEntryOptions
+    {
+        Expiration = TimeSpan.FromSeconds(15),
+        LocalCacheExpiration = TimeSpan.FromSeconds(15)
+    };
+});
+
 builder.Services.AddCors();
+
+builder.Services.AddOpenApi("wiredapi");
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.MapOpenApi();
+
+    //app.UseSwagger();
+    app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/wiredapi.json", "wiredapi"));
 }
 
 app.UseHttpsRedirection();
 app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
-app.MapGet("/orders", (IOrderService orderService) =>
+app.MapGet("/orders", async (IOrderService orderService) =>
 {
-    return orderService.GetOrders();
+    return await orderService.GetOrders();
 });
 
-app.MapGet("/orders/{id}", (IOrderService orderService, int id) =>
+app.MapGet("/orders/{id}", async (IOrderService orderService, int id) =>
 {
-    return orderService.GetOrderById(id);
-});
-
-app.MapPost("/contact", (Contact contact) =>
-{
-    contact.SubmittedTime = DateTime.Now;
-
-    return contact;
+    return await orderService.GetOrderById(id);
 });
 
 app.MapGet("/menu", (HttpContext context, IMenuService menuService) =>
 {
     return menuService.GetMenuItems();
-});
+})
+.WithName("GetsMenuItems")
+.WithSummary("Gets the current list of menu items.")
+.WithTags("menu", "products");
 
 app.Run();

@@ -70,7 +70,7 @@
                         <br />
                         <div class="form-group">
                             <label>Tip your barista: (optional)</label>
-                            <InputNumber type="range" min="0" max="25" step="5" @bind-value="Tip" class="form-range" />
+                            <InputNumber type="text" @bind-value="Tip" class="form-control" />
                             <p class="sub-line">@Tip% (@(((Tip / 100) * OrderTotal).ToString("C")))</p>
                         </div>
                         <br />

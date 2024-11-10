@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 using WiredBrainCoffee.Models;
 using WiredBrainCoffee.UI.Services;
 
@@ -13,22 +12,20 @@ namespace WiredBrainCoffee.UI.Components.Pages
         [Inject]
         public NavigationManager NavManager { get; set; }
 
-        public List<MenuItem> CurrentOrder { get; set; } = new List<MenuItem>();
-        public List<MenuItem> MenuItems { get; set; } = new List<MenuItem>();
-        public decimal OrderTotal { get; set; } = 0;
-        public decimal SalesTax { get; set; } = 0.06m;
-        public decimal Tip { get; set; } = 0;
-
-        public string SearchTerm { get; set; } = string.Empty;
-
-        public List<MenuItem> FilteredMenu = new List<MenuItem>();
+        private List<MenuItem> CurrentOrder = new List<MenuItem>();
+        private List<MenuItem> MenuItems = new List<MenuItem>();
+        private List<MenuItem> FilteredMenu = new List<MenuItem>();
+        private decimal OrderTotal = 0m;
+        private decimal SalesTax = 0.06m;
+        private decimal Tip = 0m;
+        private string SearchTerm = string.Empty;
 
         protected override async Task OnInitializedAsync()
         {
             MenuItems = await MenuService.GetMenuItems();
         }
 
-        public void FilterMenu()
+        private void FilterMenu()
         {
             if (!string.IsNullOrWhiteSpace(SearchTerm))
             {
