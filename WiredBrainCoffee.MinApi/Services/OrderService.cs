@@ -20,7 +20,28 @@ namespace WiredBrainCoffee.MinApi.Services
         public async Task<List<Order>> GetOrders()
         {
             var key = "admin-orders";
-            return await cache.GetOrCreateAsync(key, async _ => await GenerateOrders());
+            var cachedOrders = await cache.GetAsync(key);
+
+            if (cachedOrders is null)
+            {
+                // Orders not cached - get them from the "database"
+                var orders = await GenerateOrders();
+
+                // Serialize and cache the orders
+                var serializedOrders = JsonSerializer.Serialize(orders);
+                cachedOrders = Encoding.UTF8.GetBytes(serializedOrders);
+                await cache.SetAsync(key, cachedOrders, new DistributedCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(10)
+                });
+
+                return orders;
+            }
+            else
+            {
+                // Orders found in cache - deserialize and return them
+                return JsonSerializer.Deserialize<List<Order>>(cachedOrders);
+            }
         }
 
         private async Task<List<Order>> GenerateOrders()
