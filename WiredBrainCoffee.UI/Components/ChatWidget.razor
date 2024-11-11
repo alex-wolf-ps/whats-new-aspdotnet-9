@@ -1,4 +1,6 @@
-﻿<div class="card my-4">
+﻿@if(RendererInfo.IsInteractive)
+{
+<div class="card my-4">
     <div class="card-header">
         Chat with us
     </div>
@@ -9,3 +11,10 @@
         <a href="#" class="btn btn-primary">Launch chat</a>
     </div>
 </div>
+} else{
+    <p class="alert alert-info my-4">Sorry, chat is unavailable.</p>
+}
+
+<p>Execution Location: @RendererInfo.Name</p>
+<p>Is Interactive: @RendererInfo.IsInteractive</p>
+<p>Assigned Mode: @AssignedRenderMode</p>
