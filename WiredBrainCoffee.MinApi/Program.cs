@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Caching.Hybrid;
 using WiredBrainCoffee.MinApi.Services;
 using WiredBrainCoffee.MinApi.Services.Interfaces;
 
@@ -26,16 +25,28 @@ app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 app.MapGet("/orders", async (IOrderService orderService) =>
 {
     return await orderService.GetOrders();
-});
+})
+.WithName("GetOrders")
+.WithSummary("Gets the order history.")
+.WithTags("order")
+.WithOpenApi();
 
 app.MapGet("/orders/{id}", async (IOrderService orderService, int id) =>
 {
     return await orderService.GetOrderById(id);
-});
+})
+.WithName("GetOrder")
+.WithSummary("Gets an order by id.")
+.WithTags("order")
+.WithOpenApi();
 
 app.MapGet("/menu", (HttpContext context, IMenuService menuService) =>
 {
     return menuService.GetMenuItems();
-});
+})
+.WithName("GetMenuItems")
+.WithSummary("Gets the current public menu.")
+.WithTags("menu")
+.WithOpenApi();
 
 app.Run();
