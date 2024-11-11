@@ -21,7 +21,7 @@
                         <hr />
                         <div class="order-history">
                             <div class="grid">
-                                <QuickGrid Class="admin-grid table table-striped table-bordered" Items="Orders" Virtualize="true">
+                                <QuickGrid Class="admin-grid table table-striped table-bordered" Items="Orders" Virtualize="true" OverscanCount="5">
                                     <PropertyColumn Property="@(p => p.Id)" Sortable="true" />
                                     <PropertyColumn Property="@(p => p.OrderNumber)" Sortable="true" />
                                     <PropertyColumn Property="@(p => p.LastName)" Sortable="true" />
