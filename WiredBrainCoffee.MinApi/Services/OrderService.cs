@@ -2,6 +2,7 @@
 using System.Text.Json;
 using System.Xml.Linq;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Hybrid;
 using WiredBrainCoffee.MinApi.Services.Interfaces;
 using WiredBrainCoffee.Models;
 
@@ -9,9 +10,9 @@ namespace WiredBrainCoffee.MinApi.Services
 {
     public class OrderService : IOrderService
     {
-        private IDistributedCache cache;
+        private HybridCache cache;
 
-        public OrderService(IDistributedCache cache)
+        public OrderService(HybridCache cache)
         {
             this.cache = cache;
         }
@@ -19,28 +20,7 @@ namespace WiredBrainCoffee.MinApi.Services
         public async Task<List<Order>> GetOrders()
         {
             var key = "admin-orders";
-            var cachedOrders = await cache.GetAsync(key);
-
-            if (cachedOrders is null)
-            {
-                // Orders not cached - get them from the "database"
-                var orders = await GenerateOrders();
-
-                // Serialize and cache the orders
-                var serializedOrders = JsonSerializer.Serialize(orders);
-                cachedOrders = Encoding.UTF8.GetBytes(serializedOrders);
-                await cache.SetAsync(key, cachedOrders, new DistributedCacheEntryOptions
-                {
-                    AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(10)
-                });
-
-                return orders;
-            }
-            else
-            {
-                // Orders found in cache - deserialize and return them
-                return JsonSerializer.Deserialize<List<Order>>(cachedOrders);
-            }
+            return await cache.GetOrCreateAsync(key, async _ => await GenerateOrders());
         }
 
         private async Task<List<Order>> GenerateOrders()
